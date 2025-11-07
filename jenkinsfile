@@ -1,7 +1,6 @@
 pipeline {
     agent any
 
-    // <-- le mot clé correct est "environment"
     environment {
         NETLIFY_SITE_ID = '5819b381-c407-47d5-ace5-5ffa079d9e9a'
     }
@@ -16,6 +15,7 @@ pipeline {
             }
             steps {
                 sh '''
+                echo "=== Building the project ==="
                 ls -ls
                 node --version
                 npm --version
@@ -35,8 +35,9 @@ pipeline {
             }
             steps {
                 sh '''
-                  test -f build/index.html
-                  npm test
+                echo "=== Running tests ==="
+                test -f build/index.html
+                npm test
                 '''
             }
         }
@@ -50,15 +51,12 @@ pipeline {
             }
             steps {
                 sh '''
-                # si tu veux l'installer globalement dans l'image:
-                npm install -g netlify-cli
-
-                node_modules/.bin/netlify --version || netlify --version
-
-                # Affiche correctement la variable d'environnement
-                echo "Deploying to production. Site id: $NETLIFY_SITE_ID"
+                echo "=== Deploying to Netlify ==="
+                npm install netlify-cli
+                npx netlify --version
+                npx netlify deploy --prod --dir=build --site=$NETLIFY_SITE_ID
                 '''
             }
         }
-    } // fin de stages
+    }
 }
